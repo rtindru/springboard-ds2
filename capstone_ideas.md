@@ -22,7 +22,7 @@ Expedia is interested in predicting which hotel group a user is going to book. E
 Your goal of this competition is to predict the booking outcome (hotel cluster) for a user event, based on their search and other attributes associated with that user event.
 
 ###3. Relate World Bank Development Indicators and Global Average Land Temperature by Country###
-**Question:** Is there a direct co-relation between development indicators and Average Land temperatures?
+**Question:** Is there any co-relation between development indicators and average land temperatures?
 
 **Datasets:**
 
