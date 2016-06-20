@@ -1,12 +1,8 @@
 import pandas as pd
-import numpy as np
-import scipy
-import matplotlib
-import seaborn as sns
 from sklearn.cross_validation import train_test_split
 
-df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-df_test = pd.read_csv('Kaggle_Datasets/Facebook/test.csv')
+df_train = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/train.csv')
+df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
 
 
 class PredictionModel():
@@ -150,10 +146,14 @@ class ModelStore():
         wdf = wdf[['x', 'y', 'accuracy', 'hours_cycle', 'days_cycle']]
         return dict(zip(wdf.index, self.model.predict(wdf)))
 
-train, test = train_test_split(df_train, test_size = 0.2)
 
-pred_model = PredictionModel(df=train)
-print pred_model.slices
-pred_model.train()
-print pred_model.predict(test)
-print pred_model.score()
+def run():
+    train, test = train_test_split(df_train, test_size = 0.2)
+    pred_model = PredictionModel(df=train)
+    print pred_model.slices
+    pred_model.train()
+    print pred_model.predict(test)
+    score = pred_model.score()
+    print score
+    return score
+    
