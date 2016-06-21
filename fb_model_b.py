@@ -115,15 +115,15 @@ class PredictionModel():
 
 class ModelStore():
     def get_self_df(self, df):
-        self_df = df[(df[self.xcol] >= self.x1) & (df[self.xcol] <= self.x2) & (df[self.ycol] >= self.y1) & (df[self.ycol] <= self.y2)]
+        self_df = df[(df[self.xcol] >= self.x1) & (df[self.xcol] <= self.x2) & (df[self.ycol] >= self.y1) & (df[ycol] <= self.y2)]
         return self.mod_df(self_df)
 
     def mod_df(self, df):
         self_df = df
-        self_df['hours'] = self.df.time / 60.0
-        self_df['days'] = self.df.time / (60*24.0)
-        self_df['hours_cycle'] = self.df.hours % 24
-        self_df['days_cycle'] = self.df.days % 7
+        self_df['hours'] = self_df.time / 60.0
+        self_df['days'] = self_df.time / (60*24.0)
+        self_df['hours_cycle'] = self_df.hours % 24
+        self_df['days_cycle'] = self_df.days % 7
         return self_df
 
     def __init__(self, df, window, xcol, ycol):
