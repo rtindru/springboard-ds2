@@ -115,7 +115,7 @@ class PredictionModel():
 
 class ModelStore():
     def get_self_df(self, df):
-        self_df = df[(df[xcol] >= self.x1) & (df[xcol] <= self.x2) & (df[ycol] >= self.y1) & (df[ycol] <= self.y2)]
+        self_df = df[(df[self.xcol] >= self.x1) & (df[self.xcol] <= self.x2) & (df[self.ycol] >= self.y1) & (df[self.ycol] <= self.y2)]
         return self.mod_df(self_df)
 
     def mod_df(self, df):
@@ -128,6 +128,8 @@ class ModelStore():
 
     def __init__(self, df, window, xcol, ycol):
         self.window = window
+        self.xcol = xcol
+        self.ycol = ycol
         (self.x1, self.y1), (self.x2, self.y2) = self.window 
         self_df = self.get_self_df(df)
         self.unique_place_count = len(self_df.place_id.unique())
