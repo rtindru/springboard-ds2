@@ -87,7 +87,7 @@ class PredictionModel():
 
     def train(self):
     	for window, model in self.slices.iteritems():
-    	    print model
+    	    print 'Training Model: {}'.format(model)
     	    model.train(self.df)
     
     def predict(self, df):
@@ -158,12 +158,21 @@ class ModelStore():
 
 def run():
     train, test = train_test_split(df_train, test_size = 0.2)
+    print 'Initializing PredictionModel class'
     pred_model = PredictionModel(df=train)
+    print 'Init done'
     print pred_model.slices
+    
+    print 'Training Model'
     pred_model.train()
+    print 'Done Training'
+
+    print 'Predicting on test data'
     print pred_model.predict(test)
+    print 'Done predicting'
+
     score = pred_model.score()
-    print score
+    print 'Score: {}'.format(score)
     return score
     
 run()
