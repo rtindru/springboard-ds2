@@ -86,9 +86,9 @@ class PredictionModel():
         return y0
 
     def train(self):
-	for window, model in self.slices.iteritems():
-	    print model
-	    model.train(df)
+    	for window, model in self.slices.iteritems():
+    	    print model
+    	    model.train(self.df)
     
     def predict(self, df):
         self.expected = df.sort_values('row_id')['place_id']
