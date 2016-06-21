@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.cross_validation import train_test_split
 
-df_train = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/train.csv')
+df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
 #df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
 
 
