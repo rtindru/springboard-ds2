@@ -129,7 +129,7 @@ class ModelStore():
     def __init__(self, df, window, xcol, ycol):
         self.window = window
         (self.x1, self.y1), (self.x2, self.y2) = self.window 
-        self_df = get_self_df(df)
+        self_df = self.get_self_df(df)
         self.unique_place_count = len(self_df.place_id.unique())
         self.model = None
         self.total_count = len(self_df)
