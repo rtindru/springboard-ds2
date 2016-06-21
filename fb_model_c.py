@@ -89,7 +89,7 @@ class PredictionModel():
     	for window, model in self.slices.iteritems():
     	    print 'Training Model: {}'.format(model)
             (x1, y1), (x2, y2) = window
-            model_df = self.df[(self.df[self.xcol] >= self.x1) & (self.df[self.xcol] <= self.x2) & (self.df[self.ycol] >= self.y1) & (self.df[self.ycol] <= self.y2)]
+            model_df = self.df[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) & (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
     	    model.train(model_df)
             del model_df
     
