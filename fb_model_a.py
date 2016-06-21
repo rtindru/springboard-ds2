@@ -86,7 +86,7 @@ class PredictionModel():
         return y0
 
     def train(self):
-	for window, model in pred_model.slices.iteritems():
+	for window, model in self.slices.iteritems():
 	    print model.describe()
 	    model.train()
     
