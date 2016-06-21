@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.cross_validation import train_test_split
 
 df_train = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/train.csv')
-df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
+#df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
 
 
 class PredictionModel():
@@ -157,6 +157,7 @@ class ModelStore():
         return dict(zip(wdf.index, self.model.predict(wdf)))
 
 def run():
+    print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size = 0.2)
     print 'Initializing PredictionModel class'
     pred_model = PredictionModel(df=train)
