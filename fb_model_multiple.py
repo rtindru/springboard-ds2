@@ -1,11 +1,12 @@
 import pandas as pd
 from sklearn.cross_validation import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 
-df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-#df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
+# df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
+# df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
 
 
-class PredictionModel():
+class MultiPredictionModel(object):
     
     def __init__(self, df, xsize=1, ysize=0.5, xslide=0.5, yslide=0.25, xcol='x', ycol='y'):
         self.df = df
@@ -17,10 +18,29 @@ class PredictionModel():
         self.ycol = ycol
         self.xmax = self.df.x.max()
         self.ymax = self.df.y.max()
-        
+        self.features = ['x', 'y', 'accuracy', 'hour', 'day', 'week', 'month', 'year']
+        self.mod_df(self.df)
         self.windows = self.generate_windows()
-        self.slices = self.slice_df()
-    
+
+        self.expected = None
+        self.actual = None
+        self.models = {}
+
+    def mod_df(self, df):
+        df.loc[:, 'hours'] = df.time / float(60)
+        df.loc[:, 'hour'] = df.hours % 24
+
+        df.loc[:, 'days'] = df.time / float(60*24)
+        df.loc[:, 'day'] = df.days % 7
+
+        df.loc[:, 'weeks'] = df.time / float(60*24*7)
+        df.loc[:, 'week'] = df.weeks % 52
+
+        df.loc[:, 'months'] = df.time / float(60*24*30)
+        df.loc[:, 'month'] = df.months % 12
+
+        df.loc[:, 'year'] = df.time / float(60*24*365)
+
     def frange(self, x, y, jump):
         while x < y:
             yield x
@@ -42,29 +62,10 @@ class PredictionModel():
 
         for x1, y1 in ranges:
             x2, y2 = x1 + self.xsize, y1 + self.ysize
-            result.append(((x1, y1), (x1+self.xsize, y1+self.ysize)))
+            result.append(((x1, y1), (x2, y2)))
         
         return result
 
-    def slice_df(self):
-        slices = {}
-        for window in self.windows:
-            slices[window] = ModelStore(self.df, window, self.xcol, self.ycol)
-
-        return slices
-    
-    def find_best_window(self, df):
-        x1, y1 = self.find_x_window(x), self.find_y_window(y)
-        x2, y2 = x1+self.xsize, y1+self.ysize
-
-        try:
-            assert x1 <= x <= x2
-            assert y1 <= y <= y2
-        except:
-            import pdb; pdb.set_trace()
-
-        return ((x1, y1), (x2, y2))
-    
     def find_x_window(self, x):
         xs = max(0, x - (self.xsize/2.0))
         x0 = 0
@@ -86,25 +87,30 @@ class PredictionModel():
         return y0
 
     def train(self):
-        for window, model in self.slices.iteritems():
+        for window in self.windows:
+            model = ModelStore(window, self.xcol, self.ycol)
             print 'Training Model: {}'.format(model)
             (x1, y1), (x2, y2) = window
             model_df = self.df[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) & (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
-            model.train(model_df)
+            model.train(model_df, self.features)
+            self.models[window] = model
             del model_df
-    
-    def predict(self, df):
-        self.expected = df.sort_values('row_id')['place_id']
-        result_set = {}
-        df['x1'] = df.x.apply(self.find_x_window)
-        df['x2'] = df.x1 + self.xsize
-        df['y1'] = df.y.apply(self.find_y_window)
-        df['y2'] = df.y1 + self.ysize
 
-        for window, model in self.slices.iteritems():
+    def predict(self, df):
+        df = df.sort_values('row_id')
+        self.expected = df.place_id
+        self.mod_df(df)
+
+        result_set = {}
+        df.loc[:, 'x1'] = df.x.apply(self.find_x_window)
+        df.loc[:, 'x2'] = df.x1 + self.xsize
+        df.loc[:, 'y1'] = df.y.apply(self.find_y_window)
+        df.loc[:, 'y2'] = df.y1 + self.ysize
+
+        for window, model in self.models.iteritems():
             (x1, y1), (x2, y2) = window
             wdf = df[(df.x1 == x1) & (df.x2 == x2) & (df.y1 == y1) & (df.y2 == y2)]
-            res = model.predict(wdf)
+            res = model.predict(wdf, self.features)
             result_set.update(res)
 
         self.actual = [result_set[x] for x in sorted(result_set.keys())]
@@ -116,50 +122,43 @@ class PredictionModel():
         return (sum(expect == actual) / float(len(self.expected))) * 100
         
 
-class ModelStore():
+class ModelStore(object):
 
-    def __init__(self, df, window, xcol, ycol):
+    def __init__(self, window, xcol, ycol):
         self.window = window
         self.xcol = xcol
         self.ycol = ycol
         (self.x1, self.y1), (self.x2, self.y2) = self.window 
-        self.unique_place_count = len(df.place_id.unique())
         self.model = None
-        self.total_count = len(df)
         
     def __unicode__(self):
         return '{}: {}, {}'.format(self.window, self.total_count, self.unique_place_count)
 
-    def get_self_df(self, df):
-        self_df = df
-        self_df['hours'] = self_df.time / 60.0
-        self_df['days'] = self_df.time / (60*24.0)
-        self_df['hours_cycle'] = self_df.hours % 24
-        self_df['days_cycle'] = self_df.days % 7
-        return self_df
-    
-    def train(self, df):
-        self_df = self.get_self_df(df)
-        from sklearn.ensemble import RandomForestClassifier
-        self.model = RandomForestClassifier(n_estimators=5)  # x, y, accuracy, hours_cycle, days_cycle
-        tdf = self_df.sort_values('row_id').set_index('row_id')
-        train_df = tdf[['x', 'y', 'accuracy', 'hours_cycle', 'days_cycle']]
+    def train(self, df, features):
+        self.model = RandomForestClassifier(n_estimators=len(features))
+        tdf = df.sort_values('row_id').set_index('row_id')
+        train_df = tdf[features]
         values = tdf['place_id']
         self.model.fit(train_df, values)
 
-    def predict(self, df):
+    def predict(self, df, features):
         wdf = df.sort_values('row_id').set_index('row_id')
-        wdf = self.get_self_df(wdf)
-        wdf = wdf[['x', 'y', 'accuracy', 'hours_cycle', 'days_cycle']]
+        wdf = wdf[features]
         return dict(zip(wdf.index, self.model.predict(wdf)))
 
+
 def run():
+    print 'Loading DataFrame'
+    df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
+    # df_train = df_train.loc[(df_train.x <= 0.5) & (df_train.y <= 0.5), :]
+    
     print 'Splitting train and test data'
-    train, test = train_test_split(df_train, test_size = 0.2)
+    train, test = train_test_split(df_train, test_size=0.2)
+
     print 'Initializing PredictionModel class'
-    pred_model = PredictionModel(df=train)
+    pred_model = MultiPredictionModel(df=train)
     print 'Init done'
-    print pred_model.slices
+    print pred_model.windows
     
     print 'Training Model'
     pred_model.train()
