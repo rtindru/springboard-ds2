@@ -33,7 +33,7 @@ class SinglePredictionModel(object):
         df.loc[:, 'year'] = df.time / float(60*24*365)
 
     def train(self):
-        self.model = RandomForestClassifier(n_estimators=len(self.features))
+        self.model = RandomForestClassifier(n_features=len(self.features), n_jobs=-1, warm_start=True)
 
         self.mod_df(self.df)
         
