@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.cross_validation import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 
 # df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
 # df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
@@ -135,7 +136,9 @@ class ModelStore(object):
         return '{}: {}, {}'.format(self.window, self.total_count, self.unique_place_count)
 
     def train(self, df, features):
-        self.model = RandomForestClassifier(n_jobs=-1, warm_start=True)
+        # self.model = LogisticRegression(penalty='l2', solver='sag')
+        self.model = LogisticRegression(penalty='l2', multi_class='multinomial', solver='lbfgs')
+        # self.model = LogisticRegression(penalty='l2', multi_class='multinomial', solver='newton-cg')
         tdf = df.sort_values('row_id').set_index('row_id')
         train_df = tdf[features]
         values = tdf['place_id']
@@ -150,7 +153,7 @@ class ModelStore(object):
 def run():
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-    # df_train = df_train.loc[(df_train.x <= 0.5) & (df_train.y <= 0.5), :]
+    df_train = df_train.loc[(df_train.x <= 0.5) & (df_train.y <= 0.5), :]
     
     print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size=0.2)

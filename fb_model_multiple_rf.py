@@ -135,7 +135,7 @@ class ModelStore(object):
         return '{}: {}, {}'.format(self.window, self.total_count, self.unique_place_count)
 
     def train(self, df, features):
-        self.model = RandomForestClassifier(n_jobs=-1, warm_start=True)
+        self.model = RandomForestClassifier(n_estimators=len(features))
         tdf = df.sort_values('row_id').set_index('row_id')
         train_df = tdf[features]
         values = tdf['place_id']
