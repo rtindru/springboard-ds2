@@ -1,6 +1,6 @@
 import pandas as pd
 from sklearn.cross_validation import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.externals import joblib
 import gc
 
@@ -91,7 +91,7 @@ class MultiPredictionModel(object):
 
     def train(self):
         for window in self.windows:
-            model = RandomForestClassifier(n_estimators=8)
+            model = DecisionTreeClassifier()
             print 'Training Model: {}'.format(model)
             (x1, y1), (x2, y2) = window
             model_df = self.df[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) & (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
