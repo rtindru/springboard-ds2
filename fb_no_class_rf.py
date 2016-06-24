@@ -6,6 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 # df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
 # df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
 
+
 def run():
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
@@ -15,8 +16,6 @@ def run():
     train, test = train_test_split(df_train, test_size=0.2)
 
     df = train
-    xmax = self.df.x.max()
-    ymax = self.df.y.max()
     features = ['x', 'y', 'accuracy', 'hour', 'day', 'week', 'month', 'year']
     
     df.loc[:, 'hours'] = df.time / float(60)
@@ -33,17 +32,17 @@ def run():
 
     df.loc[:, 'year'] = df.time / float(60*24*365)
 
-    model = RandomForestClassifier(n_jobs=-1, warm_start=True)
+    model = RandomForestClassifier(n_jobs=1, warm_start=True)
     
-    train_df = self.df.loc[:, self.features]
-    values = self.df.loc[:, 'place_id']
+    train_df = df.loc[:, features]
+    values = df.loc[:, 'place_id']
     
     print 'Fitting Model'
     model.fit(train_df, values)
 
     wdf = test.sort_values('row_id').set_index('row_id')        
     expected = wdf.place_id
-    wdf = wdf.loc[:, self.features]
+    wdf = wdf.loc[:, features]
 
     predictions = model.predict(wdf)
     actual = predictions
