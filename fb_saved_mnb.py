@@ -4,6 +4,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 import gc
 
+file_name_str = 'mnb_mod_{}_{}_{}_{}.pkl'
+
 gc.enable()
 # df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
 # df_test = pd.read_csv('https://s3-us-west-2.amazonaws.com/fbdataset/test.csv')
@@ -100,14 +102,14 @@ class MultiPredictionModel(object):
             model_df = model_df[self.features]
 
             model.fit(model_df, values)
-            file_name = 'mod_{}_{}_{}_{}.pkl'.format(x1, y1, x2, y2)
+            file_name = file_name_str.format(x1, y1, x2, y2)
             joblib.dump(model, file_name)
             del model_df
             del model
 
     def load_model(self, window):
         (x1, y1), (x2, y2) = window
-        file_name = 'mod_{}_{}_{}_{}.pkl'.format(x1, y1, x2, y2)
+        file_name = file_name_str.format(x1, y1, x2, y2)
         model = joblib.load(file_name)
         return model
 
