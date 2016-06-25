@@ -14,7 +14,7 @@ gc.enable()
 
 class MultiPredictionModel(object):
     
-    def __init__(self, df, xsize=2.0, ysize=1.0, xslide=1.0, yslide=0.5, xcol='x', ycol='y'):
+    def __init__(self, df, xsize=4.0, ysize=4.0, xslide=2.0, yslide=2.0, xcol='x', ycol='y'):
         self.df = df
         self.xsize = xsize
         self.ysize = ysize
