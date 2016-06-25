@@ -13,7 +13,7 @@ gc.enable()
 
 class MultiPredictionModel(object):
     
-    def __init__(self, df, xsize=4.0, ysize=4.0, xslide=2.0, yslide=2.0, xcol='x', ycol='y'):
+    def __init__(self, df, xsize=0.5, ysize=0.5, xslide=0.25, yslide=0.25, xcol='x', ycol='y'):
         self.df = df
         self.xsize = xsize
         self.ysize = ysize
@@ -163,7 +163,7 @@ class MultiPredictionModel(object):
 def run():
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-    # df_train = df_train.loc[(df_train.x <= 0.5) & (df_train.y <= 0.5), :]
+    df_train = df_train.loc[(df_train.x <= 2) & (df_train.y <= 2), :]
     
     print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size=0.2)

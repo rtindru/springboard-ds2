@@ -13,7 +13,7 @@ gc.enable()
 
 class MultiPredictionModel(object):
     
-    def __init__(self, df, xsize=4.0, ysize=4.0, xslide=2.0, yslide=2.0, xcol='x', ycol='y'):
+    def __init__(self, df, xsize=0.5, ysize=0.5, xslide=0.25, yslide=0.25, xcol='x', ycol='y'):
         self.df = df
         self.xsize = xsize
         self.ysize = ysize
@@ -33,18 +33,18 @@ class MultiPredictionModel(object):
 
     def mod_df(self, df):
         df.loc[:, 'hours'] = df.time / float(60)
-        df.loc[:, 'hour'] = df.hours % 24
+        df.loc[:, 'hour'] = df.hours % 24 + 1
 
         df.loc[:, 'days'] = df.time / float(60*24)
-        df.loc[:, 'day'] = df.days % 7
-
+        df.loc[:, 'day'] = df.days % 7 + 1
+ 
         df.loc[:, 'weeks'] = df.time / float(60*24*7)
-        df.loc[:, 'week'] = df.weeks % 52
+        df.loc[:, 'week'] = df.weeks % 52 + 1
 
         df.loc[:, 'months'] = df.time / float(60*24*30)
-        df.loc[:, 'month'] = df.months % 12
+        df.loc[:, 'month'] = df.months % 12 + 1
 
-        df.loc[:, 'year'] = df.time / float(60*24*365)
+        df.loc[:, 'year'] = df.time / float(60*24*365) + 1
 
     def frange(self, x, y, jump):
         while x < y:
@@ -130,7 +130,7 @@ class MultiPredictionModel(object):
         df.loc[:, 'x2'] = df.x1 + self.xsize
         df.loc[:, 'y1'] = df.y.apply(self.find_y_window)
         df.loc[:, 'y2'] = df.y1 + self.ysize
-        out_range = df[(df.x < df.x1) or (df.x > df.x2) or (df.y < df.y1) or (df.y > df.y2)]
+        out_range = df[(df.x < df.x1) | (df.x > df.x2) | (df.y < df.y1) | (df.y > df.y2)]
         if len(out_range): print 'Error in windows'; import pdb; pdb.set_trace()
 
         for i, window in enumerate(self.windows):
@@ -162,7 +162,7 @@ class MultiPredictionModel(object):
 def run():
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-    # df_train = df_train.loc[(df_train.x <= 0.5) & (df_train.y <= 0.5), :]
+    df_train = df_train.loc[(df_train.x <= 2) & (df_train.y <= 2), :]
     
     print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size=0.2)

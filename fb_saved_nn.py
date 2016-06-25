@@ -163,7 +163,7 @@ class MultiPredictionModel(object):
 def run():
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
-    df_train = df_train.loc[(df_train.x <= 4) & (df_train.y <= 4), :]
+    df_train = df_train.loc[(df_train.x <= 2) & (df_train.y <= 2), :]
     
     print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size=0.2)
