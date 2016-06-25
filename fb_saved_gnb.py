@@ -92,7 +92,8 @@ class MultiPredictionModel(object):
         return y0
 
     def train(self):
-        for window in self.windows:
+        for i, window in enumerate(self.windows):
+            print 'Training Model: {} of {}'.format(i, len(self.windows))
             model = GaussianNB()
             print 'Training Model: {}'.format(model)
             (x1, y1), (x2, y2) = window
@@ -123,9 +124,11 @@ class MultiPredictionModel(object):
         df.loc[:, 'x2'] = df.x1 + self.xsize
         df.loc[:, 'y1'] = df.y.apply(self.find_y_window)
         df.loc[:, 'y2'] = df.y1 + self.ysize
-        
-        for window in self.windows:
-            model = self.load_model(window)
+        out_range = df[(df.x < df.x1) or (df.x > df.x2) or (df.y < df.y1) or (df.y > df.y2)]
+        if len(out_range): print 'Error in windows'; import pdb; pdb.set_trace()
+
+        for i, window in enumerate(self.windows):
+            print 'Predicting Model: {} of {}'.format(i, len(self.windows))
             (x1, y1), (x2, y2) = window
             wdf = df[(df.x1 == x1) & (df.x2 == x2) & (df.y1 == y1) & (df.y2 == y2)]
             wdf = wdf.sort_values('row_id').set_index('row_id')
