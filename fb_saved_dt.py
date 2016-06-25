@@ -130,7 +130,7 @@ class MultiPredictionModel(object):
         df.loc[:, 'y1'] = df.y.apply(self.find_y_window)
         df.loc[:, 'y2'] = df.y1 + self.ysize
 
-        out_range = df[(df.x < df.x1) or (df.x > df.x2) or (df.y < df.y1) or (df.y > df.y2)]
+        out_range = df[(df.x < df.x1) | (df.x > df.x2) | (df.y < df.y1) | (df.y > df.y2)]
         if len(out_range): print 'Error in windows'; import pdb; pdb.set_trace()
 
         for i, window in enumerate(self.windows):
