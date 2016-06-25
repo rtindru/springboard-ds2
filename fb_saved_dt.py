@@ -33,18 +33,18 @@ class MultiPredictionModel(object):
 
     def mod_df(self, df):
         df.loc[:, 'hours'] = df.time / float(60)
-        df.loc[:, 'hour'] = df.hours % 24
+        df.loc[:, 'hour'] = df.hours % 24 + 1
 
         df.loc[:, 'days'] = df.time / float(60*24)
-        df.loc[:, 'day'] = df.days % 7
+        df.loc[:, 'day'] = df.days % 7 + 1 
 
         df.loc[:, 'weeks'] = df.time / float(60*24*7)
-        df.loc[:, 'week'] = df.weeks % 52
+        df.loc[:, 'week'] = df.weeks % 52 + 1
 
         df.loc[:, 'months'] = df.time / float(60*24*30)
-        df.loc[:, 'month'] = df.months % 12
+        df.loc[:, 'month'] = df.months % 12 + 1
 
-        df.loc[:, 'year'] = df.time / float(60*24*365)
+        df.loc[:, 'year'] = df.time / float(60*24*365) + 1
 
     def frange(self, x, y, jump):
         while x < y:
