@@ -95,6 +95,12 @@ class MultiPredictionModel(object):
     def train(self):
         for i, window in enumerate(self.windows):
             print 'Training Model: {} of {}'.format(i, len(self.windows))
+            import os
+            (x1, y1), (x2, y2) = window
+            file_name = file_name_str.format(x1, y1, x2, y2)
+            if os.path.isfile(file_name):
+                print 'Already Trained'
+                continue
             model = RandomForestClassifier(n_estimators=8)
             print 'Training Model: {}'.format(model)
             (x1, y1), (x2, y2) = window
