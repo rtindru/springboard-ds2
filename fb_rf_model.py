@@ -12,6 +12,7 @@ from sklearn.externals import joblib
 
 file_name_str = 'rf_fin_{}_{}_{}_{}.pkl'
 out_file_name = 'rf_results.csv'
+out_file_name2 = 'rf_results2.csv'
 
 gc.enable()
 
@@ -33,7 +34,6 @@ class MultiPredictionModel(object):
         self.expected = None
         self.order_expected = None
         self.actual = None
-        self.tdf = None
         self.result_set = {}
         self.features = ['x', 'y', 'accuracy', 'hour', 'day', 'week', 'month', 'year']
 
@@ -138,10 +138,14 @@ class MultiPredictionModel(object):
     def round_off(self, x):
         return round(x, 3)
 
-    def predict(self, df):
+    def predict(self, df, test=False):
         df = df.sort_values('row_id')
-        self.expected = dict(zip(df.row_id, df.place_id))
-        self.order_expected = df.place_id
+        self.result_set = {}
+        self.dr = {}
+
+        if test:
+            self.expected = dict(zip(df.row_id, df.place_id))
+            self.order_expected = df.place_id
 
         self.mod_df(df)
 
@@ -152,14 +156,11 @@ class MultiPredictionModel(object):
         df.loc[:, 'y2'] = df.y1 + self.ysize
         df.loc[:, 'y2'] = df.y2.apply(self.round_off)
 
-        self.tdf = df
-
         out_range = df[(df.x < df.x1) | (df.x > df.x2) | (df.y < df.y1) | (df.y > df.y2)]
         if len(out_range):
             print 'Error in window generation'
             import pdb; pdb.set_trace()
 
-        self.dr = {}
         for i, window in enumerate(self.windows):
             print 'Predicting Model: {} of {}'.format(i, len(self.windows))
             model = self.load_model(window)
@@ -173,21 +174,25 @@ class MultiPredictionModel(object):
                 import pdb; pdb.set_trace()
                 continue
 
+            # Making single predictions for this set
             predictions = model.predict_proba(wdf)
             best_fit = model.predict(wdf)
             self.dr.update(dict(zip(wdf.index, best_fit)))
+
+            # Making proba predictions for this set
             for index in xrange(len(wdf)):
                 res = {}
                 place_list = []
                 row_id = wdf.index[index]
                 prediction = predictions[index]
+
                 indices = np.argsort(prediction)[-3:][::-1]
                 places = model.classes_[indices]
                 probabilities = np.sort(prediction)[-3:][::-1]
-                p1, p2, p3 = probabilities
 
+                p1, p2, p3 = probabilities
                 assert p1 >= p2 >= p3
-                this_df = wdf.iloc[index]
+
                 place_list.append(places[0])
                 p2_appended = False
                 if p1 - p2 <= 0.2:
@@ -202,20 +207,28 @@ class MultiPredictionModel(object):
 
             model = None; del model; gc.collect()
 
-        self.actual = [self.result_set[x][0] for x in sorted(self.result_set.keys())]
-        with open('result.json', 'w') as fil:
+        if test:
+            self.actual = (self.result_set[x][0] for x in sorted(self.result_set.keys()))
+
+        with open('result.json', 'w') as f1:
             pruned = {k: v[0] for k,v in self.result_set.iteritems()}
-            fil.write(json.dumps(pruned)) 
+            f1.write(json.dumps(pruned)) 
         with open('result2.json', 'w') as f2:
             f2.write(json.dumps(self.dr))
+
         return self.result_set
 
     def write_result(self, file_name):
-        with open(file_name, 'w') as outfile:
+        with open(out_file_name, 'w') as outfile:
             csv_writer = csv.writer(outfile, delimiter=',')
             for row_id, place_list in self.result_set.iteritems():
-                place_str = ' '.join(place_list)
+                place_str = ' '.join((str(x) for x in place_list))
                 csv_writer.writerow([row_id, place_str])
+
+        with open(out_file_name2, 'w') as outfile2:
+            csv_writer = csv.writer(outfile2, delimiter=',')
+            for row_id, place in self.dr.iteritems():
+                csv_writer.writerow([row_id, place])
 
     def score(self):
         correct_count = 0
@@ -237,7 +250,7 @@ class MultiPredictionModel(object):
 
         o = pd.Series(self.order_expected)
         n = pd.Series(self.actual)
-        m = pd.Series([self.dr[x] for x in sorted(self.dr.keys())])
+        m = pd.Series((self.dr[x] for x in sorted(self.dr.keys())))
         print 'Simple Score Multi Pred: {}'.format((sum(o == n) / float(len(o))) * 100)
         print 'Simple Score One Pred: {}'.format((sum(o == m) / float(len(o))) * 100)
         print 'Simple Score: {}'.format((correct_count/float(total_count)) * 100)
@@ -250,13 +263,20 @@ def run(xsize, ysize, xstep, ystep, n_estimators, n_jobs):
         os.remove(out_file_name)
     except:
         pass
+    try:
+        os.remove(out_file_name2)
+    except:
+        pass
     print 'Loading DataFrame'
     df_train = pd.read_csv('Kaggle_Datasets/Facebook/train.csv')
+    df_test = pd.read_csv('Kaggle_Datasets/Facebook/test.csv')
+
     # df_train = df_train.loc[(df_train.x <= 1) & (df_train.y <= 1), :]
+    # df_test = df_test.loc[(df_test.x <= 1) & (df_test.y <= 1), :]
 
     print 'Splitting train and test data'
     train, test = train_test_split(df_train, test_size=0.2, random_state=1)
-    train, cv = train_test_split(train, test_size=0.25, random_state=2)
+    #train, cv = train_test_split(train, test_size=0.25, random_state=2)
 
     df_train = None; del df_train; gc.collect()
 
@@ -270,17 +290,21 @@ def run(xsize, ysize, xstep, ystep, n_estimators, n_jobs):
     print 'Done Training'
 
     print 'Predicting on test data'
-    print pred_model.predict(test)
+    print pred_model.predict(test, test=True)
     print 'Done predicting'
 
+    print 'Scoring Data'
+    pred_model.score()
+    print 'Done Scoring'
+
+    print 'Predicting on read data'
+    print pred_model.predict(df_test)
+    print 'Done predicting'   
+
     print 'Print Writing Results'
-    pred_model.write_result(out_file_name)    
+    pred_model.write_result()    
     print 'Done writing results'
 
-    score = pred_model.score()
-    print 'Score: {}'.format(score)
-    return score
-    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
