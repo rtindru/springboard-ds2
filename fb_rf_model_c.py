@@ -57,7 +57,7 @@ class MultiPredictionModel(object):
         df.loc[:, 'log2_accuracy'] = np.log2(df.accuracy) * 10
         df.loc[:, 'accu_class'] = df.days.apply(self.apply_accu_class)
  
-   def apply_accu_class(self, x):
+    def apply_accu_class(self, x):
         rise_ranges = ((50, 90), (130, 160), (220, 310), (380, 600))
         fall_ranges = ((0, 40), (110, 120), (190, 210), (320, 370), )
         peak_ranges = ((90, 110), (160, 190), (310, 320), )
