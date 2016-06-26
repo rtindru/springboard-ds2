@@ -218,7 +218,7 @@ class MultiPredictionModel(object):
 
         return self.result_set
 
-    def write_result(self, file_name):
+    def write_result(self, ):
         with open(out_file_name, 'w') as outfile:
             csv_writer = csv.writer(outfile, delimiter=',')
             for row_id, place_list in self.result_set.iteritems():
