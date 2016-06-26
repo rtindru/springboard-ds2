@@ -102,7 +102,7 @@ class MultiPredictionModel(object):
 
     def train(self):
         for i, window in enumerate(self.windows):
-            print 'Training Model: {} of {}'.format(i, len(self.windows))
+            print 'Training Model: {} of {}'.format(i+1, len(self.windows))
             (x1, y1), (x2, y2) = window
             file_name = file_name_str.format(x1, y1, x2, y2)
             if os.path.isfile(file_name):
@@ -162,7 +162,7 @@ class MultiPredictionModel(object):
             import pdb; pdb.set_trace()
 
         for i, window in enumerate(self.windows):
-            print 'Predicting Model: {} of {}'.format(i, len(self.windows))
+            print 'Predicting Model: {} of {}'.format(i+1, len(self.windows))
             model = self.load_model(window)
             (x1, y1), (x2, y2) = window
             wdf = df[(df.x1 == x1) & (df.x2 == x2) & (df.y1 == y1) & (df.y2 == y2)]
@@ -290,7 +290,7 @@ def run(xsize, ysize, xstep, ystep, n_estimators, n_jobs):
     print 'Done Training'
 
     print 'Predicting on test data'
-    print pred_model.predict(test, test=True)
+    pred_model.predict(test, test=True)
     print 'Done predicting'
 
     print 'Scoring Data'
