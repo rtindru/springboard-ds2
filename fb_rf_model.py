@@ -124,7 +124,7 @@ class MultiPredictionModel(object):
 
             model.fit(model_df, values)
             file_name = file_name_str.format(x1, y1, x2, y2)
-            joblib.dump(model, file_name)
+            joblib.dump(model, file_name, compress=5, )
 
             model_df = None; del model_df; gc.collect()
             model = None; del model; gc.collect()
