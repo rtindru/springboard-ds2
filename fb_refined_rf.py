@@ -190,7 +190,7 @@ class MultiPredictionModel(object):
 
                 indices = np.argsort(prediction)[-3:][::-1]
                 places = model.classes_[indices]
-		place_list = list(places)
+                place_list = list(places)
                 res[row_id] = place_list
                 self.result_set.update(res)
 
