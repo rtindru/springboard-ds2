@@ -75,3 +75,6 @@ for lists in actual_test2[colname]:
 print (features)
 print ("corresponding weights")
 print (final_weights)
+['x', 'y', 'hour_of_day', 'day_of_week', 'month_of_year', 'year', 'sine', 'cos', 'accuracy']
+weights = [24.2373305, 40.77935942, 109.38474695, 118.08743198, 105.51443127, 466.62561155,
+           396.0134498, 475.13596255, 7.55050706]
