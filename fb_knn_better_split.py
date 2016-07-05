@@ -19,7 +19,7 @@ gc.enable()
 
 
 class MultiPredictionModel(object):
-    def __init__(self, df, xsize=0.5, ysize=0.5, xslide=0.25, yslide=0.25, xcol='x', ycol='y', ):
+    def __init__(self, df, xsize=0.5, ysize=0.5, xslide=0.25, yslide=0.25, xcol='x', ycol='y', th=5):
         self.preds = None
         self.df = df
         self.xsize = xsize
@@ -35,8 +35,7 @@ class MultiPredictionModel(object):
         self.actual = None
         self.result_set = {}
         self.features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2_accuracy']
-
-        self.df = self.mod_df(self.df)
+        self.th = th
         self.windows = self.generate_windows()
 
     def mod_df(self, df):
@@ -115,17 +114,17 @@ class MultiPredictionModel(object):
         pred_labels = le.inverse_transform(np.argsort(y_pred, axis=1)[:, ::-1][:, :3])
         return pred_labels, row_ids
 
-    def process_cells(self, df_test):
+    def process_cells(self, df_tran, df_test):
         self.preds = np.zeros((len(df_test), 3), dtype=int)
         for i, window in enumerate(self.windows):
-            print 'Processing Window: {} of {}'.format(i+1, len(self.windows))
+            print 'Processing Window: {} of {}'.format(i + 1, len(self.windows))
             (x1, y1), (x2, y2) = window
-            model_df = self.df[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) &
-                               (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
-            tdf = df_test[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) &
-                          (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
+            train_df = self.mod_df(df_tran[(df_tran[self.xcol] >= x1) & (df_tran[self.xcol] <= x2) &
+                                           (df_tran[self.ycol] >= y1) & (df_tran[self.ycol] <= y2)])
+            test_df = self.mod_df(df_test[(df_test[self.xcol] >= x1) & (df_test[self.xcol] <= x2) &
+                                          (df_test[self.ycol] >= y1) & (df_test[self.ycol] <= y2)])
 
-            pred_labels, row_ids = self.process_cell(model_df, tdf, window)
+            pred_labels, row_ids = self.process_cell(train_df, test_df, window)
             self.preds[row_ids] = pred_labels
 
         df_aux = pd.DataFrame(self.preds, dtype=str, columns=['l1', 'l2', 'l3'])
@@ -141,7 +140,7 @@ class MultiPredictionModel(object):
         return round(x, 3)
 
 
-def run(xsize, ysize, xstep, ystep):
+def run(xsize, ysize, xstep, ystep, th):
     print 'Loading DataFrame'
     df_train = pd.read_csv('../Kaggle_Datasets/Facebook/train.csv')
     df_test = pd.read_csv('../Kaggle_Datasets/Facebook/test.csv')
@@ -152,6 +151,9 @@ def run(xsize, ysize, xstep, ystep):
     # print 'Splitting train and test data'
     # train, test = train_test_split(df_train, test_size=0.2, random_state=1)
     # train, cv = train_test_split(train, test_size=0.25, random_state=2)
+    place_counts = df_train.place_id.value_counts()
+    mask = (place_counts[df_train.place_id.values] >= th).values
+    df_train = df_train.loc[mask]
 
     print 'Initializing PredictionModel class'
     pred_model = MultiPredictionModel(df_train, xsize, ysize, xstep, ystep, 'x', 'y', )
@@ -169,9 +171,11 @@ if __name__ == "__main__":
     parser.add_argument("ysize", help="Size of Y", type=float)
     parser.add_argument("xstep", help="Step of X", type=float)
     parser.add_argument("ystep", help="Step of Y", type=float)
+    parser.add_argument("th", help="Threshold", type=int)
     args = parser.parse_args()
     xsize = round(args.xsize, 3)
     ysize = round(args.ysize, 3)
     xslide = round(args.xstep, 3)
     yslide = round(args.ystep, 3)
-    print run(xsize, ysize, xslide, yslide)
+    th = round(args.tg, 3)
+    print run(xsize, ysize, xslide, yslide, th)
