@@ -145,12 +145,6 @@ def run(xsize, ysize, xstep, ystep, th):
     df_train = pd.read_csv('../Kaggle_Datasets/Facebook/train.csv')
     df_test = pd.read_csv('../Kaggle_Datasets/Facebook/test.csv')
 
-    # df_train = df_train.loc[(df_train.x <= 0.4) & (df_train.y <= 0.2), :]
-    # df_test = df_test.loc[(df_test.x <= 0.4) & (df_test.y <= 0.2), :]
-
-    # print 'Splitting train and test data'
-    # train, test = train_test_split(df_train, test_size=0.2, random_state=1)
-    # train, cv = train_test_split(train, test_size=0.25, random_state=2)
     place_counts = df_train.place_id.value_counts()
     mask = (place_counts[df_train.place_id.values] >= th).values
     df_train = df_train.loc[mask]
@@ -161,7 +155,7 @@ def run(xsize, ysize, xstep, ystep, th):
     print pred_model.windows
 
     print 'Training Model'
-    pred_model.process_cells(df_test)
+    pred_model.process_cells(df_train, df_test)
     print 'Done Training'
 
 
