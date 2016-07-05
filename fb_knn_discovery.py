@@ -107,9 +107,12 @@ def process_grid(df_train, df_test, conf):
 
 def compute_score(results, actuals):
     res = results.loc[actuals.index, :]
-    s1 = res.l1 == actuals
-    s2 = res.l2 == actuals
-    s3 = res.l3 == actuals
+    r1 = res.l1.astype(np.int)
+    r2 = res.l2.astype(np.int)
+    r3 = res.l3.astype(np.int)
+    s1 = r1 == actuals
+    s2 = r2 == actuals
+    s3 = r3 == actuals
     import pdb; pdb.set_trace()
     return sum(s1*1 + s2*0.5 + s3*0.3)/float(len(actuals))
 
