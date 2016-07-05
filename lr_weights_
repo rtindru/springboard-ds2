@@ -46,7 +46,6 @@ def prepare_data(df, n_cell_x=None, n_cell_y=None):
 recent_train = recent_train[
     (recent_train["x"] > 4.5) & (recent_train["x"] < 5) & (recent_train["y"] > 2) & (recent_train["y"] < 2.3)]
 
-use_features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time', 'place_id']
 features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time']
 # derive some features
 # recent_train["x"], recent_train["y"] = recent_train["x"] * 1000, recent_train["y"] * 1000
@@ -64,7 +63,7 @@ features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'ac
 #
 # recent_train["year"] = recent_train["day"] // 365 + 1
 recent_train = prepare_data(recent_train)
-recent_train = recent_train.loc[:, use_features]
+recent_train = recent_train.loc[:, features]
 print("recent_train created")
 
 # creating arbitrary test
@@ -109,6 +108,6 @@ for lists in actual_test2[colname]:
 print (features)
 print ("corresponding weights")
 print (final_weights)
-# Results
-['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time']
-[2.78081211e-02, 2.00890984e-02, 2.02405885e+01, 1.03837023e+01, 1.87224053e+00, 3.94438968e+00, 5.04880080e+00, 1.28098213e+01, 5.64821133e+00, 2.38557461e-03]
+# ['x', 'y', 'hour_of_day', 'day_of_week', 'month_of_year', 'year', 'sine', 'cos', 'accuracy']
+# weights = [24.2373305, 40.77935942, 109.38474695, 118.08743198, 105.51443127, 466.62561155,
+#            396.0134498, 475.13596255, 7.55050706]
