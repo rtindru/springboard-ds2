@@ -46,7 +46,6 @@ def prepare_data(df, n_cell_x=None, n_cell_y=None):
 recent_train = recent_train[
     (recent_train["x"] > 4.5) & (recent_train["x"] < 5) & (recent_train["y"] > 2) & (recent_train["y"] < 2.3)]
 
-use_features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time', 'place_id']
 features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time']
 # derive some features
 # recent_train["x"], recent_train["y"] = recent_train["x"] * 1000, recent_train["y"] * 1000
@@ -64,7 +63,7 @@ features = ['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'ac
 #
 # recent_train["year"] = recent_train["day"] // 365 + 1
 recent_train = prepare_data(recent_train)
-recent_train = recent_train.loc[:, use_features]
+recent_train = recent_train.loc[:, features]
 print("recent_train created")
 
 # creating arbitrary test
