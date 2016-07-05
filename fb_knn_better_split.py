@@ -118,6 +118,7 @@ class MultiPredictionModel(object):
     def process_cells(self, df_test):
         self.preds = np.zeros((len(df_test), 3), dtype=int)
         for i, window in enumerate(self.windows):
+            print 'Processing Window: {} of {}'.format(i+1, len(self.windows))
             (x1, y1), (x2, y2) = window
             model_df = self.df[(self.df[self.xcol] >= x1) & (self.df[self.xcol] <= x2) &
                                (self.df[self.ycol] >= y1) & (self.df[self.ycol] <= y2)]
@@ -132,6 +133,7 @@ class MultiPredictionModel(object):
         ds_sub = df_aux.l1.str.cat([df_aux.l2, df_aux.l3], sep=' ')
 
         # Writting to csv
+        print 'Writing to CSV'
         ds_sub.name = 'place_id'
         ds_sub.to_csv('sub_knn.csv', index=True, header=True, index_label='row_id')
 
