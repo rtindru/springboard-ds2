@@ -108,6 +108,6 @@ for lists in actual_test2[colname]:
 print (features)
 print ("corresponding weights")
 print (final_weights)
-# ['x', 'y', 'hour_of_day', 'day_of_week', 'month_of_year', 'year', 'sine', 'cos', 'accuracy']
-# weights = [24.2373305, 40.77935942, 109.38474695, 118.08743198, 105.51443127, 466.62561155,
-#            396.0134498, 475.13596255, 7.55050706]
+# Results
+['x', 'y', 'hour', 'weekday', 'day', 'month', 'year', 'log2accu', 'accuracy', 'time']
+[2.78081211e-02, 2.00890984e-02, 2.02405885e+01, 1.03837023e+01, 1.87224053e+00, 3.94438968e+00, 5.04880080e+00, 1.28098213e+01, 5.64821133e+00, 2.38557461e-03]
