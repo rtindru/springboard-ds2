@@ -88,7 +88,7 @@ def process_grid(df_train, df_test, th, n_cells):
     Iterates over all grid cells, aggregates the results and makes the
     submission.
     """
-    preds = np.zeros((df_test.shape[0], 3), dtype=int)
+    preds = np.zeros((df_test.shape[0], 10), dtype=int)
 
     for g_id in range(n_cells):
         if g_id % 100 == 0:
