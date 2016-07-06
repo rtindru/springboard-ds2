@@ -105,7 +105,7 @@ class MultiPredictionModel(object):
         le = LabelEncoder()
         y = le.fit_transform(df_cell_train.place_id.values)
         X = df_cell_train.loc[:, self.features].values.astype(int)
-        X_test = df_cell_test[:, self.features].values.astype(int)
+        X_test = df_cell_test.loc[:, self.features].values.astype(int)
 
         clf = KNeighborsClassifier(n_neighbors=25, weights='distance',
                                    metric='manhattan')

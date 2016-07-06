@@ -61,7 +61,7 @@ def process_one_cell(df_train, df_test, grid_id, th):
     clf1 = KNeighborsClassifier(n_neighbors=25, weights='distance',
                                metric='manhattan')
     clf2 = RandomForestClassifier(n_estimators=30, n_jobs=-1)
-    eclf = VotingClassifier(estimators=[('knn', clf1), ('rf', clf2)], voting='hard')
+    eclf = VotingClassifier(estimators=[('knn', clf1), ('rf', clf2)], voting='soft')
 
     eclf.fit(X, y)
     y_pred = eclf.predict_proba(X_test)
@@ -103,10 +103,10 @@ if __name__ == '__main__':
     """
     print('Loading data ...')
     df_train = pd.read_csv('../Kaggle_Datasets/Facebook/train.csv',
-                           usecols=['row_id', 'x', 'y', 'time', 'place_id'],
+                           usecols=['row_id', 'x', 'y', 'time', 'accuracy', 'place_id'],
                            index_col=0)
     df_test = pd.read_csv('../Kaggle_Datasets/Facebook/test.csv',
-                          usecols=['row_id', 'x', 'y', 'time'],
+                          usecols=['row_id', 'x', 'y', 'accuracy', 'time'],
                           index_col=0)
 
     # df_train = df_train[(df_train.x < 0.5) & (df_train.y < 0.5)]
