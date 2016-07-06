@@ -164,6 +164,7 @@ def run(xsize, ysize, xstep, ystep, th):
     if debug:
         print 'Running in Test Mode'
         df_size = len(df_train)
+        df_train = df_train[(df_train.x <= 2) & (df_train.y <= 2)]
         df_train, df_test = train_test_split(df_train, test_size=0.2, random_state=23)
         vals = df_test.place_id
         df_test = df_test.drop('place_id', axis=1)
