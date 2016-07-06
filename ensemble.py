@@ -123,5 +123,9 @@ if __name__ == '__main__':
 
     # Solving classification problems inside each grid cell
     th = 5  # Keeping place_ids with more than th samples.
+    place_counts = df_train.place_id.value_counts()
+    mask = (place_counts[df_train.place_id.values] >= th).values
+    df_train = df_train.loc[mask]
+
     process_grid(df_train, df_test, th, n_cell_x * n_cell_y)
 

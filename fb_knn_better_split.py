@@ -171,5 +171,5 @@ if __name__ == "__main__":
     ysize = round(args.ysize, 3)
     xslide = round(args.xstep, 3)
     yslide = round(args.ystep, 3)
-    th = round(args.tg, 3)
+    th = round(args.th, 3)
     print run(xsize, ysize, xslide, yslide, th)
